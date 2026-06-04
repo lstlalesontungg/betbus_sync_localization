@@ -1,0 +1,34 @@
+# Copy thành config.yaml và điền giá trị thật. config.yaml bị gitignore.
+# Trên GitHub Actions: paste nguyên nội dung file YAML này vào secret SYNC_CONFIG_YAML.
+
+lark:
+  # Lark Suite quốc tế: open.larksuite.com. Bản Feishu CN: open.feishu.cn
+  base_url: "https://open.larksuite.com"
+  app_id: "cli_XXXXXXXXXXXXXXXX"
+  app_secret: "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+
+# Cột (header GSheet) dùng để detect duplicate
+duplicate_key_column: "key"
+
+# Tên field warning trên Lark Base. Tạo sẵn cột Text với tên này ở MỖI table.
+dup_warning_column: "__dup_warning"
+
+# Mỗi bảng cần sync. Token Larkbase 2 dạng:
+#   wiki_token: "<wiki_node_token>"   # Base nằm trong Wiki (URL có /wiki/...)
+#   app_token:  "<bitable_app_token>" # Base độc lập (URL có /base/bascn...)
+tables:
+  # Mode 1: sync 1 tab Google Sheet -> 1 table Lark
+  - name: "sheet_a"
+    spreadsheet_id: "<GOOGLE_SHEET_ID>"
+    gsheet_range: "TabName!A:H"
+    wiki_token: "<LARK_WIKI_NODE_TOKEN>"
+    lark_table_id: "<LARK_TABLE_ID>"
+
+  # Mode 2: merge TẤT CẢ tab Google Sheet -> 1 table Lark
+  # Field name dùng vị trí cột (A, B, ..., I) + __tab + __dup_warning.
+  - name: "sheet_multi_tab"
+    spreadsheet_id: "<GOOGLE_SHEET_ID>"
+    merge_all_tabs: true
+    num_columns: 9
+    wiki_token: "<LARK_WIKI_NODE_TOKEN>"
+    lark_table_id: "<LARK_TABLE_ID>"
