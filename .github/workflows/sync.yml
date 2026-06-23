@@ -24,7 +24,25 @@ jobs:
       - run: pip install -r requirements.txt
 
       - name: Run sync
+        id: sync
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SYNC_CONFIG_YAML: ${{ secrets.SYNC_CONFIG_YAML }}
         run: python sync.py
+
+      - name: Notify Telegram
+        if: always()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          STATUS: ${{ job.status }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          if [ "$STATUS" = "success" ]; then ICON="✅"; else ICON="❌"; fi
+          TS=$(TZ=Asia/Ho_Chi_Minh date '+%Y-%m-%d %H:%M:%S %Z')
+          TEXT="${ICON} Sync GSheet→Lark: ${STATUS}%0A🕒 ${TS}%0A⚡ ${TRIGGER}%0A🔗 ${RUN_URL}"
+          curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            -d "chat_id=${TG_CHAT}" \
+            -d "text=${TEXT}" \
+            -d "disable_web_page_preview=true"
