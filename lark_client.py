@@ -43,7 +43,7 @@ class LarkClient:
         url = f"{self.base_url}{path}"
         for attempt in range(5):
             r = requests.request(method, url, headers=self._headers(), json=json_body, params=params, timeout=60)
-            if r.status_code == 429:
+            if r.status_code == 429 or r.status_code >= 500:
                 time.sleep(2 ** attempt)
                 continue
             try:
